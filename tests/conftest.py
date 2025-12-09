@@ -22,7 +22,7 @@ from testresource.environment import (
     reason_textbox
 )
 from utils import common_utils
-
+from utils import web_utils as webfunctions
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -69,7 +69,7 @@ def driver(request):
 
     drv.maximize_window()
     yield drv
-    drv.quit()
+    # drv.quit()
 
 #
 @pytest.fixture(scope="session", autouse=True)
@@ -111,3 +111,4 @@ def login_once(driver):
     # Submit again (second submit)
     submit_el2 = wait.until(EC.element_to_be_clickable((By.ID, submit)))
     submit_el2.click()
+    webfunctions.wait_for_page_load(driver, 120)
