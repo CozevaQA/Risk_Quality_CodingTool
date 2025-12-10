@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/poc-feature-test-suite.iml" filepath="$PROJECT_DIR$/.idea/poc-feature-test-suite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/risk-quality-codingtool-automation.iml" filepath="$PROJECT_DIR$/.idea/risk-quality-codingtool-automation.iml" />
     </modules>
   </component>
 </project>

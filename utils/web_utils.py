@@ -1,5 +1,5 @@
 from selenium.common import ElementNotInteractableException, ElementClickInterceptedException, \
-    StaleElementReferenceException
+    StaleElementReferenceException, exceptions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
@@ -16,5 +16,8 @@ def action_click(driver,element):
 
 def wait_for_page_load(driver,timeout):
     loader_element_class = 'ajax_preloader'
-    WebDriverWait(driver, timeout).until(
-        EC.invisibility_of_element_located((By.CLASS_NAME, loader_element_class)))
+    try:
+        WebDriverWait(driver, timeout).until(
+            EC.invisibility_of_element_located((By.CLASS_NAME, loader_element_class)))
+    except exceptions as e:
+        print("Ajax Preloader wait failed: ", e)

@@ -1,6 +1,6 @@
 
-from pages.Patient_Dashboard import Patient_Dashboard
-from pages.Risk_POC import Risk_POC
+from pages.PatientDashboard import Patient_Dashboard
+from pages.RiskPOC import Risk_POC
 from testresource import testdata,environment
 
 def test_poc_launch(driver, timeout=20):

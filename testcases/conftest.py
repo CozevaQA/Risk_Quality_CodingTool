@@ -30,7 +30,7 @@ def pytest_addoption(parser):
         action="store",
         default="chrome",
         choices=["chrome", "edge"],
-        help="Browser to run tests on",
+        help="Browser to run testcases on",
     )
 @pytest.fixture(scope="session")
 def driver(request):
@@ -48,7 +48,7 @@ def driver(request):
         # 👉 Chrome profile setup
         options.add_argument(f"--user-data-dir={CHROME_PROFILE}")
         options.add_argument("--profile-directory=Default")     # or Profile 1
-
+        options.add_experimental_option("detach", True)
         drv = webdriver.Chrome(
             service=service,
             options=options,
@@ -61,7 +61,7 @@ def driver(request):
         edge_profile_path = os.path.expanduser(r"~\AppData\Local\Microsoft\Edge\User Data")
         options.add_argument(f"--user-data-dir={edge_profile_path}")
         options.add_argument("--profile-directory=Default")     # or Profile 1
-
+        options.add_experimental_option("detach", True)
         drv = webdriver.Edge(
             service=EdgeService(EdgeChromiumDriverManager().install()),
             options=options,
@@ -76,7 +76,7 @@ def driver(request):
 def login_once(driver):
     """
     Runs ONCE before any test (session scoped) and logs in.
-    All tests will see an already logged-in browser.
+    All testcases will see an already logged-in browser.
     """
     # Go to login page
     driver.get(LOGIN_URL)
@@ -112,3 +112,4 @@ def login_once(driver):
     submit_el2 = wait.until(EC.element_to_be_clickable((By.ID, submit)))
     submit_el2.click()
     webfunctions.wait_for_page_load(driver, 120)
+
