@@ -3,7 +3,7 @@ Automation framework for Risk &amp; Quality POC using Selenium-Python. Includes 
 
 # Risk_Quality_CodingTool
 
-Risk_Quality_CodingTool is a modular Selenium-Python automation framework designed for validating the Risk & Quality Proof of Concept (POC).  
+Risk_Quality_CodingTool is a modular Selenium-Python automation framework designed for validating the Risk & Quality POC , coding Tool .  
 It follows a clean Page Object + Action Function architecture, enabling scalable test creation for Smoke, Sanity, and Regression suites.
 
 ---
