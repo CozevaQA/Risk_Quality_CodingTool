@@ -30,129 +30,162 @@ It follows a clean Page Object + Action Function architecture, enabling scalable
 
 ---
 
-## 📁 Project Structure (Proposed)
+📁 Project Structure
+.
+├── testcases/
+│   ├── test_poc_launch.py         # Test modules defining test cases
+│   └── ...                        # Other test files
+│
+├── pages/
+│   ├── BasePage.py                # Base page with common helpers
+│   ├── PatientDashboard.py        # Page object for Patient Dashboard
+│   ├── RiskPOC.py                 # Page object for Risk Point Of Care
+│   └── locators/
+│       ├── RiskPOCLocators.py     # Locators for RiskPOC
+│       └── PatientDashboardLocators.py
+│
+├── utils/
+│   ├── common_utils.py            # Shared utility functions
+│   └── web_utils.py               # Web/Selenium helpers (waits, retries)
+│
+├── testresource/
+│   ├── chromedriver.exe           # Browser driver binary
+│   ├── constants.py               # Constant values
+│   ├── environment.py             # Environment configs (URLs, profiles)
+│   └── testdata.py                # Test data providers
+│
+├── conftest.py                    # pytest fixtures (driver, pages, teardown)
+├── pytest.ini                     # pytest configuration
+├── requirements.txt               # Python dependencies
+├── allure-results/                # Test reports & artifacts
+└── README.md                     # Project documentation
 
-DETAILED LAYER RESPONSIBILITIES & INTERACTIONS (technical)
-#
-# 1) Test Runner / Test Layer (testcases/)
-#    - Files: test_poc_launch.py, other test modules
-#    - Responsibility:
-#       * Define test cases (pytest functions or classes).
-#       * Use fixtures (from conftest.py) to get driver / page objects.
-#       * Perform assertions on page layer return values.
-#    - Interaction:
-#       test -> uses page object methods (pages.RiskPOC.RiskPOCPage.some_method())
-#       test should NOT contain low-level find_element calls.
-#
-# 2) Fixture / Orchestration (conftest.py)
-#    - Files: conftest.py
-#    - Responsibility:
-#       * Instantiate WebDriver (using chromedriver from testresource).
-#       * Configure browser profile, options (headless, user-data-dir).
-#       * Create and provide Page objects (page = RiskPOC(driver)).
-#       * Implement teardown (driver.quit()) and session/module/function scoping.
-#    - Interaction:
-#       conftest provides fixtures to tests and can initialize common data from testresource.
-#
-# 3) Page Layer (pages/*.py)
-#    - Files: BasePage.py, PatientDashboard.py, RiskPOC.py
-#    - Responsibility:
-#       * Implement Page Object Model (POM): methods that represent user actions and queries.
-#       * Return elements or boolean checks (e.g., is_visible_and_displayed).
-#       * Avoid assertions here; return values consumed by tests.
-#    - Typical contents of BasePage:
-#       * driver reference
-#       * wait helpers (WebDriverWait wrappers)
-#       * common interaction helpers (click, send_keys, scroll_into_view)
-#       * the `is_visible_and_displayed(locator)` used everywhere
-#
-# 4) Locator Layer (pages/locators/*.py)
-#    - Files: RiskPOCLocators.py, PatientDashboardLocators.py
-#    - Responsibility:
-#       * Centralize element locators (By.XPATH, By.CSS_SELECTOR, etc.)
-#       * Keep locators as simple, robust, single-responsibility constants
-#       * Example: ADD_DX_BUTTON = (By.XPATH, "//div[contains(@class,'dx_search') and contains(., '+ Add Dx')]")
-#    - Interaction:
-#       Page methods import RiskPOCLocators and use the locator constants with BasePage helpers.
-#
-# 5) Utils Layer (utils/)
-#    - Files: common_utils.py, web_utils.py
-#    - Responsibility:
-#       * Place generic utilities that are reused across pages/tests:
-#            - DOM helpers, JS executors, file upload, waits, retry logic
-#            - Logging wrappers, screenshots on failure
-#       * Keep these functions pure (no direct test assertions) so they can be reused.
-#    - Interaction:
-#       BasePage and Page classes call utilities here. Tests rarely call utils directly.
-#
-# 6) TestResource Layer (testresource/)
-#    - Files: chromedriver.exe, constants.py, environment.py, testdata.py
-#    - Responsibility:
-#       * Environment configuration (urls, credentials), constants used across tests
-#       * Test data providers (fixtures or JSON reading)
-#       * Driver binaries (chromedriver) or code to download/manage driver
-#    - Interaction:
-#       conftest reads environment/testdata to configure test runs.
-#
-# 7) Reporting / Artifacts
-#    - Location: allure-results/ (as shown)
-#    - Responsibility:
-#       * Allure / HTML reports and screenshots
-#       * Tests or hooks (pytest hooks in conftest) should write artifacts here on failure.
-#
-####################################################################################################
-#
-# CALL SEQUENCE (example single test run)
-#
-# conftest.py (session fixture) creates WebDriver --> returns driver fixture
-#    ↓
-# test_poc_launch.py receives driver (or a page fixture created in conftest)
-#    ↓
-# test calls page = RiskPOC(driver) / uses fixture page
-#    ↓
-# page.method() uses BasePage.wait + RiskPOCLocators.ADD_DX_BUTTON
-#    ↓
-# BasePage uses utils.web_utils.wait_for_element(locator)
-#    ↓
-# WebDriver interacts with browser (chromedriver.exe)
-#    ↓
-# Test asserts on return values; on failure screenshot/save logs into allure-results
-#
-####################################################################################################
-#
-# BEST PRACTICES / RULES YOU SHOULD FOLLOW (technical, 100% correct)
-#
-# - Keep locators out of page logic: one locator per constant in locators/*.py
-# - Page objects expose behavior (actions) or queries (is_visible, get_text). Avoid asserts inside pages.
-# - Tests contain assertions only. This separation keeps tests readable and maintainable.
-# - Use explicit waits in BasePage (WebDriverWait) and expose small, well-named helpers:
-#     * wait_for_visibility(locator, timeout=10)
-#     * wait_for_clickable(locator, timeout=10)
-#     * is_visible_and_displayed(locator)  # returns boolean, safe for page dictionary
-# - Use fixtures to manage driver lifecycle and to inject test data/env configs.
-# - Centralize test constants & credentials in testresource/environment.py (DO NOT hardcode secrets).
-# - Keep utils stateless when possible. If stateful, document it clearly.
-# - Log at debug level inside utils and BasePage; do not print in production tests.
-#
-####################################################################################################
-#
-# QUICK ASCII DIAGRAM (compact)
-#
-#   [pytest runner]
-#        |
-#    conftest.py --(fixtures)-> provides driver, env, page instances
-#        |
-#    testcases/*.py  (uses page objects)
-#        |
-#    pages/*.py  <------ uses ------ pages/locators/*.py
-#        |                                ^
-#        |                                |
-#   BasePage, web_utils.py  <-------------+
-#        |
-#   selenium webdriver <--> chromedriver.exe
-#        |
-#   browser
-#
+🧠 Architecture Overview
 
+The framework is organized according to a layered pattern to ensure readability, maintainability, and separation of responsibilities:
+
+1️⃣ Test Layer — testcases/
+
+Contains pytest test modules with functions/classes.
+
+Uses fixtures from conftest.py to obtain page objects and driver.
+
+Tests must not use low-level find_element calls.
+
+Tests interact with page objects such as:
+
+page = RiskPOC(driver)
+assert page.some_action_or_check()
+
+2️⃣ Fixture / Orchestration — conftest.py
+
+Creates and configures the WebDriver (e.g., Chrome + options like headless, custom profile).
+
+Provides fixtures for:
+
+Web driver
+
+Page objects (instantiated with driver)
+
+Test data/environment configs
+
+Handles teardown via driver.quit().
+
+Fixtures help abstract repeated setup logic and ensure clean resource management with scopes such as session, module, or function.
+
+3️⃣ Page Layer — pages/*.py
+
+Implements the Page Object Model (POM).
+
+Contains methods representing UI interactions and queries.
+
+Return states/results — no assertions inside page layer.
+
+Uses locator constants from the locator layer.
+
+Typical content in BasePage:
+
+class BasePage:
+    def __init__(self, driver):
+        self.driver = driver
+
+    def wait_for_visibility(self, locator):
+        ...
+    def click(self, locator):
+        ...
+    def send_keys(self, locator, text):
+        ...
+
+4️⃣ Locator Layer — pages/locators/*.py
+
+Stores locators as constants with Selenium locators:
+
+ADD_DX_BUTTON = (By.XPATH, "//div[contains(@class,'dx_search') and contains(., '+ Add Dx')]")
+
+
+Keeps selectors centralized and reusable.
+
+5️⃣ Utils Layer — utils/
+
+Generic reusable helpers for:
+
+Waiting logic
+
+JS execution
+
+Screenshot capture
+
+Retry logic
+
+Logging
+
+Decoupled from test logic for better maintainability.
+
+Utils are stateless where possible and helpers are consumed by page objects and core framework.
+
+6️⃣ TestResource Layer — testresource/
+
+Environment configurations (URLs, credentials), constants, test data.
+
+Browser driver binary (e.g., chromedriver) or driver management logic.
+
+Fixtures can read this layer for environment setup.
+
+7️⃣ Reporting / Artifacts — allure-results/
+
+Collected test artifacts (screenshots, logs).
+
+Used by Allure or other reporting tools to generate reports on test execution.
+
+🚀 Call Sequence (example run)
+
+1️⃣ pytest runner starts
+2️⃣ conftest.py instantiates WebDriver → driver fixture
+3️⃣ Test receives driver or page object fixture
+4️⃣ Test calls page object method
+5️⃣ Page method uses locators and helpers (utils.web_utils, BasePage)
+6️⃣ WebDriver interacts with browser via ChromeDriver
+7️⃣ Test asserts on returned values; on failure, artifact saved to allure-results
+
+📌 Best Practices
+
+✅ Keep locators in locators/*.py only — one locator per constant
+✅ Page objects return data/states only (no asserts)
+✅ Tests contain assertions and high-level flow logic
+✅ Use explicit waits (WebDriverWait) — don’t rely solely on static sleeps
+✅ Fixture-driven setup/teardown — avoid manual driver handling in tests
+✅ Centralize config & secrets — no hardcoded values
+✅ Logging at debug level — avoid prints; use logger
+✅ Screenshots on failure for diagnostics
+
+🛠️ Quick Start
+# install dependencies
+pip install -r requirements.txt
+
+# run tests with pytest
+pytest -s -v --alluredir=allure-results
+
+# generate Allure HTML report
+allure serve allure-results
 
 
