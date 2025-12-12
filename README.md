@@ -31,6 +31,9 @@ It follows a clean Page Object + Action Function architecture, enabling scalable
 ---
 
 📁 Project Structure
+
+
+
 <img width="591" height="555" alt="image" src="https://github.com/user-attachments/assets/92e7fb0b-cdc6-4c51-adfc-4d769e368516" />
 
 🧠 Architecture Overview
@@ -156,9 +159,9 @@ Used by Allure or other reporting tools to generate reports on test execution.
 pip install -r requirements.txt
 
 # run tests with pytest
-pytest -s -v --alluredir=allure-results
+pytest -s -v 
 
 # generate Allure HTML report
-allure serve allure-results
+allure generate allure-results -o allure-report --clean
 
 
