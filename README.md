@@ -31,34 +31,7 @@ It follows a clean Page Object + Action Function architecture, enabling scalable
 ---
 
 📁 Project Structure
-.
-├── testcases/
-│   ├── test_poc_launch.py         # Test modules defining test cases
-│   └── ...                        # Other test files
-│
-├── pages/
-│   ├── BasePage.py                # Base page with common helpers
-│   ├── PatientDashboard.py        # Page object for Patient Dashboard
-│   ├── RiskPOC.py                 # Page object for Risk Point Of Care
-│   └── locators/
-│       ├── RiskPOCLocators.py     # Locators for RiskPOC
-│       └── PatientDashboardLocators.py
-│
-├── utils/
-│   ├── common_utils.py            # Shared utility functions
-│   └── web_utils.py               # Web/Selenium helpers (waits, retries)
-│
-├── testresource/
-│   ├── chromedriver.exe           # Browser driver binary
-│   ├── constants.py               # Constant values
-│   ├── environment.py             # Environment configs (URLs, profiles)
-│   └── testdata.py                # Test data providers
-│
-├── conftest.py                    # pytest fixtures (driver, pages, teardown)
-├── pytest.ini                     # pytest configuration
-├── requirements.txt               # Python dependencies
-├── allure-results/                # Test reports & artifacts
-└── README.md                     # Project documentation
+<img width="591" height="555" alt="image" src="https://github.com/user-attachments/assets/92e7fb0b-cdc6-4c51-adfc-4d769e368516" />
 
 🧠 Architecture Overview
 
