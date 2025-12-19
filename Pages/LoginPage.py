@@ -15,7 +15,7 @@ class LoginPage:
     def login (self):
         try:
             username = data.username
-            password = base64.b64decode(data.password).decode('utf-8')
+            password = data.password
             LoginName = self.driver.find_element(By.ID, loc.uname_field_id)
             LoginName.send_keys(username)
             LoginPassword = self.driver.find_element(By.ID, loc.pwd_field_id)
